@@ -22,8 +22,8 @@
   --grad-primary: linear-gradient(120deg, #c9ebcf 0%, #e3f2b3 50%, #fae9a3 100%);
   --grad-soft: linear-gradient(120deg, var(--mint), var(--seafoam) 30%, var(--pistachio) 65%, var(--butter));
 
-  --font-display: "Quicksand", "Nunito", "Varela Round", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Quicksand", "Nunito", "Varela Round", "Arial Rounded MT Bold", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Nunito", "Varela Round", "Arial Rounded MT Bold", "Segoe UI", system-ui, -apple-system, sans-serif;
 
   --radius: 20px;
   --radius-lg: 30px;
@@ -58,7 +58,7 @@ body {
 img, video { display: block; max-width: 100%; }
 a { color: var(--eyebrow); text-underline-offset: 3px; }
 a:hover { color: var(--ink); }
-h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.18; margin: 0 0 .5em; color: var(--ink); letter-spacing: -0.005em; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.2; margin: 0 0 .5em; color: var(--ink); letter-spacing: -0.01em; }
 h2 { font-size: clamp(1.9rem, 3.2vw + .6rem, 3rem); }
 h3 { font-size: 1.25rem; font-weight: 700; }
 p { margin: 0 0 1em; }
@@ -727,3 +727,17 @@ kbd {
 .how, .features, .companions, .gallery, .controls, .care {
   content-visibility: auto; contain-intrinsic-size: auto 900px;
 }
+
+/* ---------- Typography: rounded, calm voice everywhere ---------- */
+.eyebrow, .btn, .nav__links a, .tour-step, .tour-slide__kicker, .seg__legend, .seg span,
+.breather__count, .breathe__stats, .reqs li span, .shot::after, .hero__pause, .skip-link {
+  font-family: var(--font-display);
+}
+.eyebrow { font-weight: 700; letter-spacing: .18em; }
+.btn { font-weight: 700; letter-spacing: .01em; }
+.nav__links a { font-weight: 600; }
+.brand { font-weight: 700; letter-spacing: -.01em; }
+.hero h1 { font-weight: 600; letter-spacing: -0.02em; }
+.hero h1 em { font-weight: 700; }
+.breather__phase { font-weight: 500; letter-spacing: -.01em; }
+.section__head p:last-child, .split__text > p, .hero__lede { line-height: 1.7; }
