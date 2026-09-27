@@ -63,7 +63,7 @@ ffmpeg -i assets/video/trailer.mp4 -c:v libvpx-vp9 -crf 38 -b:v 0 assets/video/t
 
 ## Notes
 - All paths are relative, so the site works on `mindspace.garden` and at `…github.io/HTH3-Project-MindSpace-Website/`.
-- Fonts (Fraunces + Nunito Sans) load from Google Fonts, with system-font fallbacks.
+- Fonts: Quicksand (headings) and Nunito (body), both rounded, loaded from Google Fonts with system-font fallbacks.
 - Respects `prefers-reduced-motion`: animations, parallax and the background video are switched off (the tour still steps by scrolling). The video also has a visible pause button.
 - Performance: no `backdrop-filter` or blur filters, colour changes are opacity cross-fades, scroll work is batched in one `requestAnimationFrame`, looping animations pause off-screen, below-the-fold sections use `content-visibility: auto`, and fonts load without blocking the first paint.
 - Crisis line info (9-8-8 in Canada/US, findahelpline.com elsewhere) is in the Care section. Keep it if you edit that section.
