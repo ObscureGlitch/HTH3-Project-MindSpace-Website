@@ -21,7 +21,7 @@
       btn.setAttribute("href", url);
       var sameOrigin = !/^https?:\/\//i.test(url) || url.indexOf(location.origin) === 0;
       if (sameOrigin) btn.setAttribute("download", cfg.fileName || "");
-      else { btn.setAttribute("target", "_blank"); btn.setAttribute("rel", "noopener"); }
+      else btn.setAttribute("rel", "noopener");
     } else {
       btn.setAttribute("href", "#download");
       btn.setAttribute("aria-disabled", "true");

@@ -1,61 +1,42 @@
 # HTH3-Project-MindSpace-Website
-The website for MindSpace — a calm, voice-first 3D wellness game built in Unity for **Hack the Hill III (Fall 2026)**.
+The website for MindSpace, a calm, voice-first 3D wellness game built in Unity for **Hack the Hill III (Fall 2026)**.
 
-A single static landing page: a looping background trailer, what the game is, how voice conversations work, features, gallery, controls, care/privacy notes and a download button. No login, no backend, no build step.
+**Live site:** https://obscureglitch.github.io/HTH3-Project-MindSpace-Website/
+
+A single static page, hosted on GitHub Pages straight from the root of the `main` branch. There's no build step, no backend, no login and no dependencies.
 
 ```
-public/                 ← web root (everything that gets served)
-  index.html
-  styles.css
-  main.js               ← small progressive enhancements, no dependencies
-  config.js             ← ✏️  edit this to set the download link
-  assets/img/           ← in-game screenshots (webp), logo, social card
-  assets/video/         ← generated background trailer (mp4 + webm) + poster
-  downloads/            ← drop your zipped game build here
-Dockerfile              ← nginx:alpine image serving /public
-nginx.conf
-docker-compose.yml
-package.json            ← convenience scripts (local preview + docker)
+index.html      ← the page
+styles.css
+main.js         ← interactions & animation (plain JS)
+config.js       ← ✏️ edit this to change the download link
+assets/img/     ← in-game screenshots (webp), logo, social-share image
+assets/video/   ← background trailer (mp4 + webm) and its poster
+.nojekyll       ← tells GitHub Pages to serve the files as-is
 ```
 
-## 1. Add your game build
+## Turn on GitHub Pages (one time)
 
-1. Zip the **whole** Unity build folder (the `.exe`, `*_Data`, `MonoBleedingEdge`, `UnityPlayer.dll`, `D3D12`, …) — do **not** include the `*_BackUpThisFolder_ButDontShipItWithYourGame` folder.
-2. Save it as `public/downloads/MindSpace-Windows.zip`.
-3. Open `public/config.js` and check `downloadUrl` matches (optionally fill in `fileSize`).
+1. On GitHub, open the repo → **Settings** → **Pages**.
+2. Under **Build and deployment**, set **Source** to *Deploy from a branch*.
+3. Choose branch **main** and folder **/ (root)**, then **Save**.
+4. After a minute or two the site is live at the URL above. Every push to `main` redeploys it automatically.
 
-Hosting the file somewhere else (GitHub Releases, Google Drive, itch.io, S3…)? Just set `downloadUrl` to that full URL.
-Setting `downloadUrl: ""` shows a disabled "Download coming soon" button.
+## Publish the game download
 
-## 2. Preview locally
+GitHub won't store files over 100 MB in a repo, so the game goes in a **Release**:
 
-```bash
-npm run dev          # http://localhost:5173  (uses `npx serve`, nothing to install)
-```
-Or open `public/index.html` directly in a browser.
+1. Zip the **whole** Unity build folder (the `.exe`, `*_Data`, `MonoBleedingEdge`, `UnityPlayer.dll`, `D3D12`, …). Leave out the `*_BackUpThisFolder_ButDontShipItWithYourGame` folder.
+2. Name the zip **`MindSpace-Windows.zip`**.
+3. On GitHub: **Releases** → **Draft a new release** → create a tag (e.g. `v1.0`) → attach the zip → **Publish release**. (Release files can be up to 2 GB each.)
 
-## 3. Deploy with Docker
+The Download buttons already point to
+`https://github.com/ObscureGlitch/HTH3-Project-MindSpace-Website/releases/latest/download/MindSpace-Windows.zip`,
+which always serves the newest release, so there's nothing else to change. To host it elsewhere, set `downloadUrl` in `config.js`.
 
-```bash
-docker compose up -d --build     # http://localhost:8080
-# or
-docker build -t mindspace-web .
-docker run -d -p 8080:80 -v "$(pwd)/public/downloads:/usr/share/nginx/html/downloads:ro" mindspace-web
-```
-`public/downloads` is mounted as a volume, so you can replace the game zip without rebuilding the image.
-Put a TLS-terminating reverse proxy (Caddy, Traefik, nginx) in front for HTTPS.
+## Preview locally
 
-## Replacing the trailer
-
-The background video is a 28-second slow-pan montage generated from in-engine screenshots.
-To use your own trailer, replace `public/assets/video/trailer.mp4` **and** `trailer.webm` (or delete the webm `<source>` lines in `index.html`), and update `poster.jpg`.
-Keep the background version muted, short and small (≈ 3–6 MB). For a separate full trailer with audio in the "Watch the trailer" dialog, set `trailerUrl` in `config.js`.
-
-Example re-encode with ffmpeg:
-```bash
-ffmpeg -i my-trailer.mov -an -vf scale=1280:-2 -c:v libx264 -crf 26 -preset slow -movflags +faststart public/assets/video/trailer.mp4
-ffmpeg -i public/assets/video/trailer.mp4 -c:v libvpx-vp9 -crf 38 -b:v 0 public/assets/video/trailer.webm
-```
+Open `index.html` in a browser, or run any static server from the repo root, e.g. `python -m http.server 8080`.
 
 ## Editing the "Turn through the space" tour
 
@@ -70,8 +51,18 @@ Every stop has one entry in each of these lists, all in the same order:
 
 If you change the number of stops, also update `style="--stops:5"` on the section and the `72deg` in `styles.css` / `main.js` (360 ÷ number of stops).
 
+## Replacing the trailer
+
+The background video is a 28-second slow-pan montage made from in-engine screenshots. To use your own, replace `assets/video/trailer.mp4` **and** `trailer.webm` (or delete the webm `<source>` lines in `index.html`), and update `poster.jpg`. Keep the background version muted, short and small (≈ 3–6 MB). For a separate full trailer with sound in the "Watch the trailer" dialog, set `trailerUrl` in `config.js`.
+
+```bash
+ffmpeg -i my-trailer.mov -an -vf scale=1280:-2 -c:v libx264 -crf 26 -preset slow -movflags +faststart assets/video/trailer.mp4
+ffmpeg -i assets/video/trailer.mp4 -c:v libvpx-vp9 -crf 38 -b:v 0 assets/video/trailer.webm
+```
+
 ## Notes
+- All paths are relative, so the site works at `…github.io/HTH3-Project-MindSpace-Website/` and on a custom domain.
 - Fonts (Fraunces + Nunito Sans) load from Google Fonts, with system-font fallbacks.
-- Respects `prefers-reduced-motion`: animations, parallax and the background video are switched off (the tour still steps by scrolling); the video also has a visible pause button.
+- Respects `prefers-reduced-motion`: animations, parallax and the background video are switched off (the tour still steps by scrolling). The video also has a visible pause button.
 - Performance: no `backdrop-filter` or blur filters, colour changes are opacity cross-fades, scroll work is batched in one `requestAnimationFrame`, looping animations pause off-screen, below-the-fold sections use `content-visibility: auto`, and fonts load without blocking the first paint.
-- Crisis line info (9-8-8 in Canada/US, findahelpline.com elsewhere) is in the Care section — keep it if you edit that section.
+- Crisis line info (9-8-8 in Canada/US, findahelpline.com elsewhere) is in the Care section. Keep it if you edit that section.

@@ -1,5 +1,9 @@
-node_modules/
-# Game builds are large — keep them out of git
-public/downloads/*
-!public/downloads/.gitkeep
-!public/downloads/README.txt
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Game builds are large (GitHub blocks files over 100 MB) — publish them as a GitHub Release instead
+*.zip
+*.7z
+*.exe
