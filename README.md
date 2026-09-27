@@ -54,7 +54,7 @@ If you change the number of stops, also update `style="--stops:5"` on the sectio
 
 ## Replacing the trailer
 
-The background video is a 28-second slow-pan montage made from in-engine screenshots. To use your own, replace `assets/video/trailer.mp4` **and** `trailer.webm` (or delete the webm `<source>` lines in `index.html`), and update `poster.jpg`. Keep the background version muted, short and small (≈ 3–6 MB). For a separate full trailer with sound in the "Watch the trailer" dialog, set `trailerUrl` in `config.js`.
+The background video is a 28 second slow pan montage of seven in game screenshots (main menu, Julien in the garden, the cabin, the counseling room, rain, the night path and the aurora). To use your own, replace `assets/video/trailer.mp4` **and** `trailer.webm` (or delete the webm `<source>` lines in `index.html`), and update `poster.jpg`. Keep the background version muted, short and small (≈ 3–6 MB). For a separate full trailer with sound in the "Watch the trailer" dialog, set `trailerUrl` in `config.js`.
 
 ```bash
 ffmpeg -i my-trailer.mov -an -vf scale=1280:-2 -c:v libx264 -crf 26 -preset slow -movflags +faststart assets/video/trailer.mp4

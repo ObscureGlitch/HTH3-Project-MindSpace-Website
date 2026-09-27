@@ -31,7 +31,7 @@
     }
   });
   var detailsEl = $("[data-download-details]");
-  if (detailsEl) detailsEl.textContent = [cfg.version, "Windows 10/11 (64-bit)", cfg.fileSize].filter(Boolean).join(" · ");
+  if (detailsEl) detailsEl.textContent = [cfg.version, "Windows 10 and 11", cfg.fileSize].filter(Boolean).join(" · ");
 
   /* ---------- Split hero headline into animated words ---------- */
   $$("[data-split]").forEach(function (el) {
