@@ -1,0 +1,12 @@
+services:
+  mindspace-web:
+    build: .
+    image: mindspace-web:latest
+    container_name: mindspace-web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    # Drop your game build into ./public/downloads/ on the host.
+    # This mount means you can swap builds without rebuilding the image.
+    volumes:
+      - ./public/downloads:/usr/share/nginx/html/downloads:ro

@@ -1,0 +1,15 @@
+{
+  "name": "mindspace-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static landing page for MindSpace — a voice-first wellness game built for Hack the Hill III.",
+  "scripts": {
+    "dev": "npx --yes serve@14 public -l 5173",
+    "start": "npx --yes serve@14 public -l 8080",
+    "docker:build": "docker build -t mindspace-web .",
+    "docker:run": "docker run --rm -p 8080:80 -v \"$(pwd)/public/downloads:/usr/share/nginx/html/downloads:ro\" mindspace-web",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down"
+  },
+  "license": "UNLICENSED"
+}

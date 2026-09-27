@@ -1,0 +1,5 @@
+node_modules/
+# Game builds are large — keep them out of git
+public/downloads/*
+!public/downloads/.gitkeep
+!public/downloads/README.txt
