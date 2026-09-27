@@ -10,9 +10,9 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="MindSpace — A quiet place to talk it through">
   <meta property="og:description" content="A calm, voice-first 3D wellness game. Explore a lakeside cabin and garden, and talk out loud with AI companions.">
-  <meta property="og:image" content="https://obscureglitch.github.io/HTH3-Project-MindSpace-Website/assets/img/og.jpg">
-  <meta property="og:url" content="https://obscureglitch.github.io/HTH3-Project-MindSpace-Website/">
-  <link rel="canonical" href="https://obscureglitch.github.io/HTH3-Project-MindSpace-Website/">
+  <meta property="og:image" content="https://mindspace.garden/assets/img/og.jpg">
+  <meta property="og:url" content="https://mindspace.garden/">
+  <link rel="canonical" href="https://mindspace.garden/">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
@@ -40,6 +40,7 @@
       <nav aria-label="Primary">
         <ul class="nav__links">
           <li><a href="#about">About</a></li>
+          <li><a href="#breathe">Breathe</a></li>
           <li><a href="#explore">Explore</a></li>
           <li><a href="#how">How it works</a></li>
           <li><a href="#features">Features</a></li>
@@ -88,25 +89,7 @@
         <span data-toggle-label>Pause background</span>
       </button>
 
-      <a class="hero__scroll" href="#breathe" aria-label="Scroll to learn more"><span></span></a>
-    </section>
-
-    <!-- ============ Marquee ribbon ============ -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee__track">
-        <div class="marquee__group"><span>breathe</span><i></i><span>listen</span><i></i><span>talk it through</span><i></i><span>rest</span><i></i><span>notice</span><i></i><span>wander</span><i></i><span>be gentle with yourself</span><i></i></div>
-        <div class="marquee__group"><span>breathe</span><i></i><span>listen</span><i></i><span>talk it through</span><i></i><span>rest</span><i></i><span>notice</span><i></i><span>wander</span><i></i><span>be gentle with yourself</span><i></i></div>
-      </div>
-    </div>
-
-    <!-- ============ Breathing moment ============ -->
-    <section class="breathe" id="breathe" aria-labelledby="breathe-title">
-      <div class="breathe__orb reveal" aria-hidden="true"><span></span></div>
-      <div class="breathe__text reveal" style="--d:1">
-        <h2 id="breathe-title" class="visually-hidden">Take a breath</h2>
-        <p class="breathe__cue"><span data-breath-cue>Breathe in…</span></p>
-        <p class="breathe__note">Before you scroll on — one slow breath. The same ten-second breathing orb lives on a shelf inside the game.</p>
-      </div>
+      <a class="hero__scroll" href="#about" aria-label="Scroll to learn more"><span></span></a>
     </section>
 
     <!-- ============ About ============ -->
@@ -139,6 +122,59 @@
           </div>
           <figcaption>The counseling room — captured in-engine.</figcaption>
         </figure>
+      </div>
+    </section>
+
+    <!-- ============ Guided breathing exercise ============ -->
+    <section class="breathe" id="breathe" aria-labelledby="breathe-title" data-breathe>
+      <div class="container breathe__inner">
+        <header class="breathe__head" data-stagger>
+          <p class="eyebrow reveal">Try it now · one minute</p>
+          <h2 id="breathe-title" class="reveal">Take a breath with us.</h2>
+          <p class="reveal">Follow the circle: breathe in as it grows, breathe out as it shrinks. Slowing your breath is one of the quickest ways to settle a busy mind. This is the same breathing orb you’ll find on the grounding shelf in MindSpace.</p>
+        </header>
+
+        <div class="breathe__stage reveal">
+          <div class="breather" data-breather data-state="idle">
+            <svg class="breather__ring" viewBox="0 0 200 200" aria-hidden="true">
+              <circle class="breather__track" cx="100" cy="100" r="94"></circle>
+              <circle class="breather__progress" cx="100" cy="100" r="94" data-breath-ring></circle>
+            </svg>
+            <div class="breather__halo" aria-hidden="true"></div>
+            <div class="breather__orb" data-breath-orb aria-hidden="true"></div>
+            <div class="breather__label">
+              <p class="breather__phase" data-breath-phase>Ready when you are</p>
+              <p class="breather__count" data-breath-count aria-hidden="true"></p>
+            </div>
+          </div>
+          <p class="visually-hidden" aria-live="polite" data-breath-live></p>
+        </div>
+
+        <div class="breathe__controls reveal">
+          <fieldset class="seg" aria-label="Breathing pattern">
+            <legend class="seg__legend">Pattern</legend>
+            <label><input type="radio" name="breath-pattern" value="calm" checked><span>Calm <small>in 4 · out 6</small></span></label>
+            <label><input type="radio" name="breath-pattern" value="box"><span>Box <small>4 · 4 · 4 · 4</small></span></label>
+            <label><input type="radio" name="breath-pattern" value="478"><span>Relax <small>4 · 7 · 8</small></span></label>
+          </fieldset>
+          <fieldset class="seg seg--small" aria-label="Session length">
+            <legend class="seg__legend">Length</legend>
+            <label><input type="radio" name="breath-length" value="60" checked><span>1 min</span></label>
+            <label><input type="radio" name="breath-length" value="180"><span>3 min</span></label>
+            <label><input type="radio" name="breath-length" value="300"><span>5 min</span></label>
+          </fieldset>
+          <div class="breathe__buttons">
+            <button class="btn btn--primary btn--large" type="button" data-breath-toggle>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" data-icon-start><path d="M7 5l12 7-12 7z" fill="currentColor"/></svg>
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" data-icon-hold hidden><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+              <span data-breath-toggle-label>Start breathing</span>
+            </button>
+            <button class="btn btn--ghost" type="button" data-breath-reset hidden>Reset</button>
+          </div>
+          <div class="breathe__meter" aria-hidden="true"><span data-breath-meter></span></div>
+          <p class="breathe__stats" data-breath-stats>0 breaths · 1:00 left</p>
+          <p class="fineprint breathe__note">Breathe gently through your nose if you can. If you feel light-headed, stop and breathe normally.</p>
+        </div>
       </div>
     </section>
 

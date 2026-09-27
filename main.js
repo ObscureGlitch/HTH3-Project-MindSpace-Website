@@ -76,7 +76,7 @@
     var pauseIO = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) { en.target.classList.toggle("is-offscreen", !en.isIntersecting); });
     }, { rootMargin: "100px 0px" });
-    $$(".hero, .marquee, .breathe, .blobs, .care, .showcase").forEach(function (el) { pauseIO.observe(el); });
+    $$(".hero, .breathe, .blobs, .care, .showcase").forEach(function (el) { pauseIO.observe(el); });
   }
 
   /* ---------- Background trailer ---------- */
@@ -86,8 +86,8 @@
   function setVideoState(playing) {
     toggle.setAttribute("aria-pressed", String(!playing));
     $("[data-toggle-label]").textContent = playing ? "Pause background" : "Play background";
-    $("[data-icon-pause]").hidden = !playing;
-    $("[data-icon-play]").hidden = playing;
+    $("[data-icon-pause]").toggleAttribute("hidden", !playing);
+    $("[data-icon-play]").toggleAttribute("hidden", playing);
   }
   if (heroVideo) {
     heroVideo.playbackRate = 0.9;
@@ -136,17 +136,179 @@
     d.addEventListener("click", function (e) { if (e.target === d) closeDialog(d); });
   });
 
-  /* ---------- Breathing cue (synced with the 10s CSS orb) ---------- */
-  var cue = $("[data-breath-cue]");
-  if (cue && !reduceMotion) {
-    var inhale = true;
-    setInterval(function () {
-      if (document.hidden) return;
-      inhale = !inhale;
-      cue.classList.add("is-out");
-      setTimeout(function () { cue.textContent = inhale ? "Breathe in…" : "Breathe out…"; cue.classList.remove("is-out"); }, 600);
-    }, 5000);
-  } else if (cue) { cue.textContent = "Breathe in… and out."; }
+  /* ---------- Guided breathing exercise ---------- */
+  (function () {
+    var root = $("[data-breathe]");
+    if (!root) return;
+    var el = {
+      breather: $("[data-breather]", root),
+      orb: $("[data-breath-orb]", root),
+      halo: $(".breather__halo", root),
+      ring: $("[data-breath-ring]", root),
+      phase: $("[data-breath-phase]", root),
+      count: $("[data-breath-count]", root),
+      live: $("[data-breath-live]", root),
+      toggle: $("[data-breath-toggle]", root),
+      toggleLabel: $("[data-breath-toggle-label]", root),
+      iconStart: $("[data-icon-start]", root),
+      iconHold: $("[data-icon-hold]", root),
+      reset: $("[data-breath-reset]", root),
+      meter: $("[data-breath-meter]", root),
+      stats: $("[data-breath-stats]", root),
+      fields: $$(".seg", root)
+    };
+    var RING = 590.62, SMALL = .62, BIG = 1;
+    var PATTERNS = {
+      calm: [["in", "Breathe in", 4], ["out", "Breathe out", 6]],
+      box: [["in", "Breathe in", 4], ["hold", "Hold", 4], ["out", "Breathe out", 4], ["rest", "Hold", 4]],
+      "478": [["in", "Breathe in", 4], ["hold", "Hold", 7], ["out", "Breathe out", 8]]
+    };
+    var st = { state: "idle", pattern: "calm", length: 60, phaseIdx: 0, phaseStart: 0, phaseLeft: 0, elapsed: 0, breaths: 0, raf: 0, lastTick: 0, lastCount: -1 };
+
+    var fmt = function (sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ":" + ("0" + (sec % 60)).slice(-2); };
+    var radio = function (name) { var r = $("input[name='" + name + "']:checked", root); return r ? r.value : null; };
+
+    function setScale(scale, secs) {
+      el.breather.style.setProperty("--dur", secs + "s");
+      el.orb.style.transform = el.halo.style.transform = "scale(" + scale + ")";
+    }
+    function runRing(secs) {
+      el.ring.style.transition = "none";
+      el.ring.style.strokeDashoffset = RING;
+      void el.ring.getBoundingClientRect();
+      el.ring.style.transition = "stroke-dashoffset " + secs + "s linear";
+      el.ring.style.strokeDashoffset = 0;
+    }
+    function freezeRing() {
+      var cur = getComputedStyle(el.ring).strokeDashoffset;
+      el.ring.style.transition = "none"; el.ring.style.strokeDashoffset = cur;
+    }
+    function freezeOrb() {
+      [el.orb, el.halo].forEach(function (n) { var m = getComputedStyle(n).transform; n.style.transition = "none"; n.style.transform = m; });
+    }
+    function unfreezeOrb() { el.orb.style.transition = el.halo.style.transition = ""; }
+    function setPhaseText(text) {
+      el.phase.classList.add("is-swap");
+      setTimeout(function () { el.phase.textContent = text; el.phase.classList.remove("is-swap"); }, 180);
+      el.live.textContent = text;
+    }
+    function updateStats() {
+      var left = st.length - st.elapsed;
+      el.stats.textContent = st.breaths + (st.breaths === 1 ? " breath" : " breaths") + " · " + fmt(left) + " left";
+      el.meter.style.transform = "scaleX(" + clamp(st.elapsed / st.length, 0, 1).toFixed(4) + ")";
+    }
+    function setButtons() {
+      var running = st.state === "running";
+      el.toggleLabel.textContent = running ? "Pause" : st.state === "paused" ? "Resume" : st.state === "done" ? "Go again" : "Start breathing";
+      el.iconStart.toggleAttribute("hidden", running); el.iconHold.toggleAttribute("hidden", !running);
+      el.reset.hidden = st.state === "idle";
+      el.fields.forEach(function (f) { f.disabled = running || st.state === "paused"; });
+      el.breather.setAttribute("data-state", st.state);
+    }
+
+    function startPhase(idx, remaining) {
+      var steps = PATTERNS[st.pattern];
+      st.phaseIdx = idx % steps.length;
+      var step = steps[st.phaseIdx];
+      var full = step[2];
+      var secs = remaining != null ? remaining : full;
+      st.phaseLeft = secs; st.phaseStart = now(); st.lastCount = -1;
+      el.breather.setAttribute("data-phase", step[0]);
+      if (remaining == null) { setPhaseText(step[1]); runRing(secs); }
+      else {
+        // resume: finish the ring from where it paused
+        el.ring.style.transition = "stroke-dashoffset " + secs + "s linear";
+        el.ring.style.strokeDashoffset = 0;
+      }
+      unfreezeOrb();
+      if (step[0] === "in") setScale(BIG, secs);
+      else if (step[0] === "out") setScale(SMALL, secs);
+      if (remaining == null && step[0] === "out") st.breaths++;
+    }
+
+    function tick(t) {
+      if (st.state !== "running") return;
+      var dt = (t - st.lastTick) / 1000; st.lastTick = t;
+      st.elapsed += dt;
+      var phaseElapsed = (t - st.phaseStart) / 1000;
+      var left = st.phaseLeft - phaseElapsed;
+      var c = Math.ceil(left);
+      if (c !== st.lastCount && c > 0) { st.lastCount = c; el.count.textContent = c; updateStats(); }
+      if (left <= 0) {
+        var steps = PATTERNS[st.pattern];
+        var endOfCycle = st.phaseIdx === steps.length - 1;
+        if (st.elapsed >= st.length && endOfCycle) return finish();
+        startPhase(st.phaseIdx + 1);
+      }
+      st.raf = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      st.pattern = radio("breath-pattern") || "calm";
+      st.length = parseInt(radio("breath-length"), 10) || 60;
+      st.elapsed = 0; st.breaths = 0;
+      st.state = "running"; setButtons();
+      setScale(SMALL, 0.01);
+      void el.orb.getBoundingClientRect();
+      st.lastTick = now();
+      startPhase(0);
+      updateStats();
+      st.raf = requestAnimationFrame(tick);
+    }
+    function pause() {
+      if (st.state !== "running") return;
+      cancelAnimationFrame(st.raf);
+      st.phaseLeft -= (now() - st.phaseStart) / 1000;
+      freezeRing(); freezeOrb();
+      st.state = "paused"; setButtons();
+      setPhaseText("Paused");
+      el.count.textContent = "";
+    }
+    function resume() {
+      st.state = "running"; setButtons();
+      var steps = PATTERNS[st.pattern];
+      setPhaseText(steps[st.phaseIdx][1]);
+      st.lastTick = now();
+      startPhase(st.phaseIdx, Math.max(st.phaseLeft, .3));
+      st.raf = requestAnimationFrame(tick);
+    }
+    function finish() {
+      cancelAnimationFrame(st.raf);
+      st.state = "done"; setButtons();
+      el.breather.removeAttribute("data-phase");
+      el.orb.style.transform = el.halo.style.transform = "";
+      el.ring.style.transition = "stroke-dashoffset .8s var(--ease)"; el.ring.style.strokeDashoffset = 0;
+      setPhaseText("Nicely done.");
+      el.count.textContent = st.breaths + " slow breaths";
+      st.elapsed = st.length; updateStats();
+    }
+    function reset() {
+      cancelAnimationFrame(st.raf);
+      st.state = "idle"; st.elapsed = 0; st.breaths = 0;
+      st.length = parseInt(radio("breath-length"), 10) || 60;
+      el.breather.removeAttribute("data-phase");
+      el.orb.style.transform = el.halo.style.transform = ""; unfreezeOrb();
+      el.ring.style.transition = "none"; el.ring.style.strokeDashoffset = RING;
+      setButtons(); setPhaseText("Ready when you are"); el.count.textContent = ""; updateStats();
+    }
+
+    el.toggle.addEventListener("click", function () {
+      if (st.state === "running") pause();
+      else if (st.state === "paused") resume();
+      else start();
+    });
+    el.reset.addEventListener("click", reset);
+    $$("input[name='breath-length']", root).forEach(function (r) {
+      r.addEventListener("change", function () { if (st.state === "idle" || st.state === "done") { st.length = parseInt(r.value, 10); st.elapsed = 0; st.breaths = 0; updateStats(); } });
+    });
+    document.addEventListener("visibilitychange", function () { if (document.hidden) pause(); });
+    if (hasIO) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (!en.isIntersecting) pause(); });
+      }, { threshold: 0 }).observe(el.breather);
+    }
+    setButtons(); updateStats();
+  })();
 
   /* ---------- Pointer effects: tilt cards + magnetic buttons (rAF-throttled) ---------- */
   if (finePointer && !reduceMotion) {

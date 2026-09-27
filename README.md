@@ -1,7 +1,7 @@
 # HTH3-Project-MindSpace-Website
 The website for MindSpace, a calm, voice-first 3D wellness game built in Unity for **Hack the Hill III (Fall 2026)**.
 
-**Live site:** https://obscureglitch.github.io/HTH3-Project-MindSpace-Website/
+**Live site:** https://mindspace.garden/
 
 A single static page, hosted on GitHub Pages straight from the root of the `main` branch. There's no build step, no backend, no login and no dependencies.
 
@@ -21,6 +21,7 @@ assets/video/   ← background trailer (mp4 + webm) and its poster
 2. Under **Build and deployment**, set **Source** to *Deploy from a branch*.
 3. Choose branch **main** and folder **/ (root)**, then **Save**.
 4. After a minute or two the site is live at the URL above. Every push to `main` redeploys it automatically.
+5. The custom domain is set by the `CNAME` file (`mindspace.garden`). Keep that file in the repo root.
 
 ## Publish the game download
 
@@ -61,7 +62,7 @@ ffmpeg -i assets/video/trailer.mp4 -c:v libvpx-vp9 -crf 38 -b:v 0 assets/video/t
 ```
 
 ## Notes
-- All paths are relative, so the site works at `…github.io/HTH3-Project-MindSpace-Website/` and on a custom domain.
+- All paths are relative, so the site works on `mindspace.garden` and at `…github.io/HTH3-Project-MindSpace-Website/`.
 - Fonts (Fraunces + Nunito Sans) load from Google Fonts, with system-font fallbacks.
 - Respects `prefers-reduced-motion`: animations, parallax and the background video are switched off (the tour still steps by scrolling). The video also has a visible pause button.
 - Performance: no `backdrop-filter` or blur filters, colour changes are opacity cross-fades, scroll work is batched in one `requestAnimationFrame`, looping animations pause off-screen, below-the-fold sections use `content-visibility: auto`, and fonts load without blocking the first paint.
